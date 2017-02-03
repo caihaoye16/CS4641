@@ -5,6 +5,10 @@ from sklearn.svm import SVC
 from sklearn.datasets import load_digits
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.utils import shuffle
 
 import pandas as pd
 import csv as csv
@@ -78,4 +82,24 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     plt.legend(loc="best")
     return plt
 
-train_df = pd.read_csv('train.csv', header=0) 
+if __name__ == "__main__":
+    train_df = pd.read_csv('train.csv', header=0) 
+
+    label = shuffle(train_df["label"].values, n_samples = 5000, random_state = 0)
+
+    y_label = []
+    for i in label:
+        temp = [0,0,0,0,0,0,0,0,0,0]
+        temp[i] = 1
+        y_label.append(temp)
+
+    X = shuffle(train_df.drop(["label"], axis = 1).values, n_samples = 5000, random_state = 0)
+    print(X.shape)
+    print(label.shape)
+
+    title = "Learning Curves (SVM)"
+    # cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=0)
+    estimator = SVC(C = 5.0, gamma = 0.01)
+    plot_learning_curve(OneVsRestClassifier(estimator), title, X / 255.0, np.array(y_label), (0.0, 1.01), cv=5, n_jobs=4)
+
+    plt.show()

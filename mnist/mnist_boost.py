@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.datasets import load_digits
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import ShuffleSplit
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.utils import shuffle
 
@@ -85,7 +85,7 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
 if __name__ == "__main__":
     train_df = pd.read_csv('train.csv', header=0) 
 
-    label = shuffle(train_df["label"].values, n_samples = 5000, random_state = 0)
+    label = shuffle(train_df["label"].values, n_samples = 50, random_state = 0)
 
     y_label = []
     for i in label:
@@ -93,13 +93,13 @@ if __name__ == "__main__":
         temp[i] = 1
         y_label.append(temp)
 
-    X = shuffle(train_df.drop(["label"], axis = 1).values, n_samples = 5000, random_state = 0)
+    X = shuffle(train_df.drop(["label"], axis = 1).values, n_samples = 50, random_state = 0)
     print(X.shape)
     print(label.shape)
 
-    title = "Learning Curves (kNN)"
+    title = "Learning Curves (SVM)"
     # cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=0)
-    estimator = KNeighborsClassifier(n_neighbors=10)
-    plot_learning_curve(estimator, title, X, label, (0.5, 1.01), cv=5, n_jobs=4)
+    estimator = AdaBoostClassifier()
+    plot_learning_curve(OneVsRestClassifier(estimator), title, X / 255.0, np.array(y_label), (0.0, 1.01), cv=5, n_jobs=4)
 
-    plt.show()
+    plt.savefig('test.png')
