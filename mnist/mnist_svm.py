@@ -97,9 +97,19 @@ if __name__ == "__main__":
     print(X.shape)
     print(label.shape)
 
-    title = "Learning Curves (SVM)"
-    # cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=0)
-    estimator = SVC(C = 5.0, gamma = 0.01)
-    plot_learning_curve(OneVsRestClassifier(estimator), title, X / 255.0, np.array(y_label), (0.0, 1.01), cv=5, n_jobs=4)
+    C_range = np.logspace(-1, 3, 5)
+    gamma_range = np.logspace(-2, 2, 5)
+    f = open('svm_acc.txt', 'w')
 
-    plt.show()
+    # cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=0)
+    for C in C_range:
+        for gamma in gamma_range:
+            title = "Learning Curves (SVM) (C " + str(C) + ", gamma " + str(gamma) + ")"
+            estimator = SVC(C = C, gamma = gamma)
+            print(C, gamma)
+            f.write('c %f, gamma %f\n' %(C,gamma))
+            plot_learning_curve(estimator, title, X / 255.0, np.array(label), (0.0, 1.01), cv=10, n_jobs=4)
+
+            plt.savefig('LC_svm_' + str(C) + '_' + str(gamma) + '.png')
+
+    f.close()
