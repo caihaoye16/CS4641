@@ -67,6 +67,8 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
+    f.write('%d\n\n' %test_scores_mean.shape)
+    # f.write('\n')
     plt.grid()
 
     plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
@@ -85,7 +87,7 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
 if __name__ == "__main__":
     train_df = pd.read_csv('train.csv', header=0) 
 
-    label = shuffle(train_df["label"].values, n_samples = 5000, random_state = 0)
+    label = shuffle(train_df["label"].values, n_samples = 10000, random_state = 0)
 
     y_label = []
     for i in label:
@@ -93,13 +95,20 @@ if __name__ == "__main__":
         temp[i] = 1
         y_label.append(temp)
 
-    X = shuffle(train_df.drop(["label"], axis = 1).values, n_samples = 5000, random_state = 0)
+    X = shuffle(train_df.drop(["label"], axis = 1).values, n_samples = 10000, random_state = 0)
     print(X.shape)
     print(label.shape)
 
     title = "Learning Curves (kNN)"
+    k_val = [2,3,4,5,6,7,8,9,10,15]
     # cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=0)
-    estimator = KNeighborsClassifier(n_neighbors=10)
-    plot_learning_curve(estimator, title, X, label, (0.5, 1.01), cv=5, n_jobs=4)
-
-    plt.show()
+    f = open('knn_acc.txt', 'w')
+    for i in k_val:
+        estimator = KNeighborsClassifier(n_neighbors=i)
+        print(i)
+        f.write('%d\n' %i)
+        plot_learning_curve(estimator, title, X, label, (0.5, 1.01), cv=10, n_jobs=2)
+        
+        # f.write('\n')
+        plt.savefig('LC_knn_kval_' + str(i) + '.png')
+    f.close()
