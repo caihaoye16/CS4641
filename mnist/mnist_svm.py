@@ -84,21 +84,22 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
 
 if __name__ == "__main__":
     train_df = pd.read_csv('train.csv', header=0) 
+    train_df = shuffle(train_df, n_samples = 5000, random_state = 0)
 
-    label = shuffle(train_df["label"].values, n_samples = 5000, random_state = 0)
+    label = train_df["label"].values
 
-    y_label = []
-    for i in label:
-        temp = [0,0,0,0,0,0,0,0,0,0]
-        temp[i] = 1
-        y_label.append(temp)
+    # y_label = []
+    # for i in label:
+    #     temp = [0,0,0,0,0,0,0,0,0,0]
+    #     temp[i] = 1
+    #     y_label.append(temp)
 
-    X = shuffle(train_df.drop(["label"], axis = 1).values, n_samples = 5000, random_state = 0)
+    X = train_df.drop(["label"], axis = 1).values
     print(X.shape)
     print(label.shape)
 
-    C_range = np.logspace(-1, 3, 5)
-    gamma_range = np.logspace(-2, 2, 5)
+    C_range = np.logspace(-1, 1, 3)
+    gamma_range = np.logspace(-2, 0, 3)
     f = open('svm_acc.txt', 'w')
 
     # cv = ShuffleSplit(n_splits=3, test_size=0.2, random_state=0)
@@ -108,7 +109,7 @@ if __name__ == "__main__":
             estimator = SVC(C = C, gamma = gamma)
             print(C, gamma)
             f.write('c %f, gamma %f\n' %(C,gamma))
-            plot_learning_curve(estimator, title, X / 255.0, np.array(label), (0.0, 1.01), cv=10, n_jobs=4)
+            plot_learning_curve(estimator, title, X / 255.0, np.array(label), (0.0, 1.01), cv=5, n_jobs=4)
 
             plt.savefig('LC_svm_' + str(C) + '_' + str(gamma) + '.png')
 
